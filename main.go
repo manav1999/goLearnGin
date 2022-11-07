@@ -2,17 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"goLearnGin/handlers"
 	"log"
-	"net/http"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
