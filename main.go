@@ -2,19 +2,19 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"goLearnGin/handlers"
 	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var recipeHandler *handlers.RecipeHandler
-
-
 
 func init() {
 	ctx := context.Background()
@@ -27,9 +27,16 @@ func init() {
 	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
 	recipeHandler = handlers.NewRecipeHandler(ctx, collection)
 
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "",
+		DB:       0,
+	})
+
+	status := redisClient.Ping(ctx)
+	fmt.Println(status)
+
 }
-
-
 
 func main() {
 	router := gin.Default()
@@ -38,6 +45,5 @@ func main() {
 	router.GET("/recipes", recipeHandler.ListRecipesHandler)
 	router.PUT("/recipes/:id", recipeHandler.UpdateRecipeHandler)
 	router.DELETE("/recipes/:id", recipeHandler.DeleteRecipeHandler)
-
 	router.Run()
 }
