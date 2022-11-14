@@ -25,8 +25,7 @@ func init() {
 	}
 	log.Println("Connected to MONGODB")
 	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
-	recipeHandler = handlers.NewRecipeHandler(ctx, collection)
-
+	
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
@@ -35,6 +34,9 @@ func init() {
 
 	status := redisClient.Ping(ctx)
 	fmt.Println(status)
+
+	recipeHandler = handlers.NewRecipeHandler(ctx, collection,redisClient)
+
 
 }
 
