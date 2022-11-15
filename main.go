@@ -50,9 +50,9 @@ func AuthMiddleware() gin.HandlerFunc {
 func main() {
 	router := gin.Default()
 	authorised := router.Group("/")
+	router.GET("/recipes", recipeHandler.ListRecipesHandler)
 
 	authorised.POST("/recipes", recipeHandler.NewRecipeHandler)
-	authorised.GET("/recipes", recipeHandler.ListRecipesHandler)
 	authorised.PUT("/recipes/:id", recipeHandler.UpdateRecipeHandler)
 	authorised.DELETE("/recipes/:id", recipeHandler.DeleteRecipeHandler)
 	router.Run()
