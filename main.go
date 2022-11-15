@@ -39,12 +39,21 @@ func init() {
 
 }
 
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.GetHeader("X-API-KEY") != os.Getenv("X_API_KEY") {
+			c.AbortWithStatus(401)
+		}
+	}
+}
+
 func main() {
 	router := gin.Default()
+	authorised := router.Group("/")
 
-	router.POST("/recipes", recipeHandler.NewRecipeHandler)
-	router.GET("/recipes", recipeHandler.ListRecipesHandler)
-	router.PUT("/recipes/:id", recipeHandler.UpdateRecipeHandler)
-	router.DELETE("/recipes/:id", recipeHandler.DeleteRecipeHandler)
+	authorised.POST("/recipes", recipeHandler.NewRecipeHandler)
+	authorised.GET("/recipes", recipeHandler.ListRecipesHandler)
+	authorised.PUT("/recipes/:id", recipeHandler.UpdateRecipeHandler)
+	authorised.DELETE("/recipes/:id", recipeHandler.DeleteRecipeHandler)
 	router.Run()
 }
