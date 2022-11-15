@@ -6,6 +6,7 @@ import (
 	"goLearnGin/models"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -50,7 +51,7 @@ func (handler *RecipeHandler) ListRecipesHandler(c *gin.Context) {
 
 		//Json.marshal is used to turn json to string
 		data, _ := json.Marshal(recipes)
-		handler.redisClient.Set("recipes", string(data), 0)
+		handler.redisClient.Set(handler.ctx, "recipes", string(data), 0)
 		c.JSON(http.StatusOK, recipes)
 	} else if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -113,6 +114,11 @@ func (handler *RecipeHandler) DeleteRecipeHandler(c *gin.Context) {
 }
 
 func (handler *RecipeHandler) NewRecipeHandler(c *gin.Context) {
+
+	if c.GetHeader("X-API-KEY") != os.Getenv("X_API_KEY") {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Api key not provided or invalid"})
+		return
+	}
 
 	var recipe models.Recipe
 	if err := c.ShouldBindJSON(&recipe); err != nil {

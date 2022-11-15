@@ -6,7 +6,7 @@ import (
 	"goLearnGin/handlers"
 	"log"
 	"os"
-	
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,7 +25,7 @@ func init() {
 	}
 	log.Println("Connected to MONGODB")
 	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
-	
+
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
@@ -35,8 +35,7 @@ func init() {
 	status := redisClient.Ping(ctx)
 	fmt.Println(status)
 
-	recipeHandler = handlers.NewRecipeHandler(ctx, collection,redisClient)
-
+	recipeHandler = handlers.NewRecipeHandler(ctx, collection, redisClient)
 
 }
 
