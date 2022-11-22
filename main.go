@@ -6,6 +6,7 @@ import (
 	"goLearnGin/handlers"
 	"log"
 	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -39,13 +40,14 @@ func init() {
 	authHandler = &handlers.AuthHandler{}
 }
 
-
 func main() {
 	router := gin.Default()
 	authorised := router.Group("/")
 	authorised.Use(authHandler.AuthMiddleware())
 	router.GET("/recipes", recipeHandler.ListRecipesHandler)
-	router.POST("/signin",authHandler.SignInHandler)
+	router.POST("/signin", authHandler.SignInHandler)
+	authorised.POST("/refresh", authHandler.RefreshHandler)
+
 	authorised.POST("/recipes", recipeHandler.NewRecipeHandler)
 	authorised.PUT("/recipes/:id", recipeHandler.UpdateRecipeHandler)
 	authorised.DELETE("/recipes/:id", recipeHandler.DeleteRecipeHandler)
