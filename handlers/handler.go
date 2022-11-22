@@ -23,6 +23,7 @@ type RecipeHandler struct {
 	redisClient *redis.Client
 }
 
+
 func NewRecipeHandler(ctx context.Context, collection *mongo.Collection, redisClient *redis.Client) *RecipeHandler {
 	return &RecipeHandler{
 		collection:  collection,

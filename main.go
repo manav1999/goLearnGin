@@ -6,7 +6,6 @@ import (
 	"goLearnGin/handlers"
 	"log"
 	"os"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,6 +14,7 @@ import (
 )
 
 var recipeHandler *handlers.RecipeHandler
+var authHandler *handlers.AuthHandler
 
 func init() {
 	ctx := context.Background()
@@ -36,22 +36,16 @@ func init() {
 	fmt.Println(status)
 
 	recipeHandler = handlers.NewRecipeHandler(ctx, collection, redisClient)
-
+	authHandler = &handlers.AuthHandler{}
 }
 
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if c.GetHeader("X-API-KEY") != os.Getenv("X_API_KEY") {
-			c.AbortWithStatus(401)
-		}
-	}
-}
 
 func main() {
 	router := gin.Default()
 	authorised := router.Group("/")
+	authorised.Use(authHandler.AuthMiddleware())
 	router.GET("/recipes", recipeHandler.ListRecipesHandler)
-
+	router.POST("/signin",authHandler.SignInHandler)
 	authorised.POST("/recipes", recipeHandler.NewRecipeHandler)
 	authorised.PUT("/recipes/:id", recipeHandler.UpdateRecipeHandler)
 	authorised.DELETE("/recipes/:id", recipeHandler.DeleteRecipeHandler)
