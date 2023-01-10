@@ -17,13 +17,15 @@ import (
 	"golang.org/x/net/context"
 )
 
+
+//Structure which contains reference to mongoDb collection and redisClient 
 type RecipeHandler struct {
 	collection  *mongo.Collection
 	ctx         context.Context
 	redisClient *redis.Client
 }
 
-
+//returns a new recipe handler(simlar to constructor )
 func NewRecipeHandler(ctx context.Context, collection *mongo.Collection, redisClient *redis.Client) *RecipeHandler {
 	return &RecipeHandler{
 		collection:  collection,
@@ -32,6 +34,8 @@ func NewRecipeHandler(ctx context.Context, collection *mongo.Collection, redisCl
 	}
 
 }
+
+//Part of RecipeHandler Struct used to get all recipes 
 func (handler *RecipeHandler) ListRecipesHandler(c *gin.Context) {
 	val, err := handler.redisClient.Get(handler.ctx, "recipes").Result()
 	if err == redis.Nil {
@@ -65,6 +69,8 @@ func (handler *RecipeHandler) ListRecipesHandler(c *gin.Context) {
 	}
 }
 
+
+//Update Recipe handler is used to update an existing recipe, id is required 
 func (handler *RecipeHandler) UpdateRecipeHandler(c *gin.Context) {
 
 	id := c.Param("id")
