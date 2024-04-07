@@ -24,7 +24,7 @@ type AuthHandler struct {
 
 type Claims struct {
 	Username string `json:"username:"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 type JWTOutput struct {
@@ -67,7 +67,7 @@ func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 
 	claims := &Claims{
 		Username:       user.UserName,
-		StandardClaims: jwt.StandardClaims{ExpiresAt: expirationTime.Unix()},
+		RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(expirationTime),},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -108,7 +108,7 @@ func (handler *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 		if err != nil {
-			log.Printf(err.Error())
+			log.Print(err.Error())
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 		if !tkn.Valid {
@@ -158,13 +158,13 @@ func (handler *AuthHandler) RefreshHandler(c *gin.Context) {
 		return
 	}
 
-	if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token Not Expired At"})
+	if time.Until(claims.ExpiresAt.Time) > 30*time.Second {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token Not Expired Yet"})
 		return
 	}
 
 	expirationTime := time.Now().Add(5 * time.Minute)
-	claims.ExpiresAt = expirationTime.Unix()
+	claims.ExpiresAt = jwt.NewNumericDate(expirationTime)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString(os.Getenv("JWT_SECRET"))
